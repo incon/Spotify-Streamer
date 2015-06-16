@@ -16,7 +16,6 @@ public class SearchAdapter extends ArrayAdapter<ArtistData> {
 
     Context context;
 
-
     public SearchAdapter(Context context, int resource, ArrayList<ArtistData> ArtistDatas) {
         super(context, resource, ArtistDatas);
         this.context = context;

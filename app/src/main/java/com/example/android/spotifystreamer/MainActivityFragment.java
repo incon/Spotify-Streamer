@@ -1,12 +1,20 @@
 package com.example.android.spotifystreamer;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +32,8 @@ import kaaes.spotify.webapi.android.models.Image;
 public class MainActivityFragment extends Fragment {
 
     SearchAdapter mSearchArtist;
+    static List<Artist> searchCache = new ArrayList<>();
+
 
     public MainActivityFragment() {
     }
@@ -34,57 +44,96 @@ public class MainActivityFragment extends Fragment {
 
 
         ArrayList<ArtistData> searchArtist = new ArrayList<ArtistData>();
+
+
         mSearchArtist =
                 new SearchAdapter(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_search, // The name of the layout ID.
                         searchArtist);
 
-        SpotifySearchTask spotifySearchTask = new SpotifySearchTask();
-        spotifySearchTask.execute();
-
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_search);
         listView.setAdapter(mSearchArtist);
 
+        //Update List View
+        updateSearchListView(searchCache);
+
+        EditText searchInput = (EditText) rootView.findViewById(R.id.search_input);
+
+        searchInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                boolean handled = false;
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    String search = v.getText().toString();
+                    SpotifySearchTask spotifySearchTask = new SpotifySearchTask();
+                    spotifySearchTask.execute(search);
+                    v.clearFocus();
+                    handled = true;
+                }
+                return handled;
+            }
+        });
+
         return rootView;
     }
 
-    public class SpotifySearchTask extends AsyncTask<Void, Void, List<Artist>> {
+    public class SpotifySearchTask extends AsyncTask<String, Void, List<Artist>> {
+
         private final String LOG_TAG = SpotifySearchTask.class.getSimpleName();
 
-        private String getSearchImage(List<Image> images) {
-            String imageUrl = null;
-            for (Image image : images) {
-                if (image.width >= 200) {
-                    imageUrl = image.url;
-                }
-            }
-            return imageUrl;
-
-        }
-
         @Override
-        protected List<Artist> doInBackground(Void... params) {
-            String artist = "hermitude";
-            SpotifyApi api = new SpotifyApi();
-            SpotifyService spotify = api.getService();
-            ArtistsPager results = spotify.searchArtists(artist);
-            List<Artist> artists = results.artists.items;
+        protected List<Artist> doInBackground(String... params) {
+            List<Artist> artists = new ArrayList<>();
+
+            //Clear Cache
+            searchCache.clear();
+
+            String artist = params[0];
+            if (!artist.isEmpty()) {
+                SpotifyApi api = new SpotifyApi();
+                SpotifyService spotify = api.getService();
+                ArtistsPager results = spotify.searchArtists(artist);
+                artists = results.artists.items;
+            }
+            searchCache = artists;
             return artists;
         }
 
         @Override
         protected void onPostExecute(List<Artist> artists) {
-            if (artists != null) {
+            if (artists != null && !artists.isEmpty()) {
+                updateSearchListView(artists);
+            } else {
                 mSearchArtist.clear();
-                for (Artist artist : artists) {
-                    String name = artist.name;
-                    mSearchArtist.add(new ArtistData(getSearchImage(artist.images), name));
-                }
+                Context context = getActivity();
+                String message = getResources().getString(R.string.no_match_found);
+                int duration = Toast.LENGTH_SHORT;
+                Toast toast = Toast.makeText(context, message, duration);
+                toast.show();
             }
         }
 
+    }
+
+    private String getSearchImage(List<Image> images) {
+        String imageUrl = null;
+        for (Image image : images) {
+            if (image.width >= 200) {
+                imageUrl = image.url;
+            }
+        }
+        return imageUrl;
+
+    }
+
+    private void updateSearchListView(List<Artist> artists) {
+        mSearchArtist.clear();
+        for (Artist artist : artists) {
+            String name = artist.name;
+            mSearchArtist.add(new ArtistData(getSearchImage(artist.images), name));
+        }
     }
 }

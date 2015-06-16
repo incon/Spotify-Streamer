@@ -2,10 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="24dp"
+    android:paddingTop="18dp"
     android:paddingRight="18dp"
     android:paddingLeft="18dp"
-    android:paddingBottom="24dp">
+    android:paddingBottom="18dp">
 
     <ImageView
         android:layout_width="60dp"
@@ -18,9 +18,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="New Text"
         android:id="@+id/list_item_search_artistName"
-        android:layout_gravity="center_vertical|left"
+        android:layout_gravity="center_vertical|start"
+        android:focusableInTouchMode="true"
         android:paddingLeft="18dp" />
 
 </LinearLayout>
