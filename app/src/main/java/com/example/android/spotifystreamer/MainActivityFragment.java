@@ -1,5 +1,6 @@
 package com.example.android.spotifystreamer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
@@ -9,7 +10,9 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -60,7 +63,7 @@ public class MainActivityFragment extends Fragment {
         //Update List View
         updateSearchListView(searchCache);
 
-        EditText searchInput = (EditText) rootView.findViewById(R.id.search_input);
+        final EditText searchInput = (EditText) rootView.findViewById(R.id.search_input);
 
         searchInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
@@ -70,14 +73,30 @@ public class MainActivityFragment extends Fragment {
                     String search = v.getText().toString();
                     SpotifySearchTask spotifySearchTask = new SpotifySearchTask();
                     spotifySearchTask.execute(search);
+
                     v.clearFocus();
-                    handled = true;
+                    hideSoftKeyboard(getActivity(), v);
+
+                    // True will keep the keyboard open
+                    // handled = true;
                 }
                 return handled;
             }
         });
 
+        if (!searchCache.isEmpty()) {
+            // http://stackoverflow.com/questions/5056734/android-force-edittext-to-remove-focus
+            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        }
+
         return rootView;
+    }
+
+    // http://stackoverflow.com/questions/18414804/android-edittext-remove-focus-after-clicking-a-button
+    public static void hideSoftKeyboard (Activity activity, View view)
+    {
+        InputMethodManager imm = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);
     }
 
     public class SpotifySearchTask extends AsyncTask<String, Void, List<Artist>> {
