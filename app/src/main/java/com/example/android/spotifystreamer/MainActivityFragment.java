@@ -2,10 +2,10 @@ package com.example.android.spotifystreamer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -59,6 +59,17 @@ public class MainActivityFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_search);
         listView.setAdapter(mSearchArtist);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                ArtistData artistId = mSearchArtist.getItem(position);
+                Intent intent = new Intent(getActivity(), TopTracksActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, artistId.id)
+                        .putExtra("ARTIST_NAME", artistId.name);
+                startActivity(intent);
+            }
+        });
 
         //Update List View
         updateSearchListView(searchCache);
@@ -152,7 +163,8 @@ public class MainActivityFragment extends Fragment {
         mSearchArtist.clear();
         for (Artist artist : artists) {
             String name = artist.name;
-            mSearchArtist.add(new ArtistData(getSearchImage(artist.images), name));
+            String id = artist.id;
+            mSearchArtist.add(new ArtistData(getSearchImage(artist.images), name, id));
         }
     }
 }
