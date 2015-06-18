@@ -63,7 +63,7 @@ public class MainActivityFragment extends Fragment {
         //Update List View
         updateSearchListView(searchCache);
 
-        final EditText searchInput = (EditText) rootView.findViewById(R.id.search_input);
+        EditText searchInput = (EditText) rootView.findViewById(R.id.search_input);
 
         searchInput.setOnEditorActionListener(new EditText.OnEditorActionListener() {
             @Override
