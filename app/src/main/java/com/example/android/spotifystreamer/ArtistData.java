@@ -1,9 +1,9 @@
 package com.example.android.spotifystreamer;
 
 public class ArtistData {
-    public String image;
-    public String name;
-    public String id;
+    private String image;
+    private String name;
+    private String id;
 
     public ArtistData(String image, String name, String id) {
         this.image = image;
@@ -11,4 +11,27 @@ public class ArtistData {
         this.id = id;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

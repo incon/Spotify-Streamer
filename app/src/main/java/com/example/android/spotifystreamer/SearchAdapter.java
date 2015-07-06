@@ -33,11 +33,11 @@ public class SearchAdapter extends ArrayAdapter<ArtistData> {
         ImageView image = (ImageView) convertView.findViewById(R.id.list_item_search_image);
         TextView artistName = (TextView) convertView.findViewById(R.id.list_item_search_artistName);
 
-        if (ArtistData.image != null) {
-            Picasso.with(context).load(ArtistData.image).into(image);
+        if (ArtistData.getImage() != null) {
+            Picasso.with(context).load(ArtistData.getImage()).into(image);
         }
         // Populate the data into the template view using the data object
-        artistName.setText(ArtistData.name);
+        artistName.setText(ArtistData.getName());
         // Return the completed view to render on screen
         return convertView;
     }
