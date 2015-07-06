@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,8 @@ public class TopTracksActivityFragment extends Fragment {
     TopTrackAdapter mTopTrack;
     static List<TrackData> topTrackCache = new ArrayList<>();
     static String artistIdCache = null;
+    static final String ARTIST_ID = "ARTIST_ID";
+    static final String ARTIST_NAME = "ARTIST_NAME";
 
     public TopTracksActivityFragment() {
     }
@@ -46,13 +49,27 @@ public class TopTracksActivityFragment extends Fragment {
                         R.layout.list_item_top_tracks, // The name of the layout ID.
                         topTrack);
 
+        String artistId = null;
+        String artistName = null;
+
         ListView listView = (ListView) rootView.findViewById(R.id.listview_top_tracks);
         listView.setAdapter(mTopTrack);
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            artistId = arguments.getString(ARTIST_ID);
+            artistName = arguments.getString(ARTIST_NAME);
+            ((MainActivity)getActivity()).getSupportActionBar().setSubtitle(artistName);
+        }
+
         Intent intent = getActivity().getIntent();
-        if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT) && intent.hasExtra("ARTIST_NAME")) {
-            String artistId = intent.getStringExtra(Intent.EXTRA_TEXT);
-            String artistName = intent.getStringExtra("ARTIST_NAME");
+        if (intent != null && intent.hasExtra(ARTIST_ID) && intent.hasExtra(ARTIST_NAME)) {
+            artistId = intent.getStringExtra(ARTIST_ID);
+            artistName = intent.getStringExtra(ARTIST_NAME);
             ((TopTracksActivity)getActivity()).getSupportActionBar().setSubtitle(artistName);
+        }
+
+        if (artistId != null && artistName != null) {
             if (topTrackCache.isEmpty() || !artistId.equals(artistIdCache)) {
                 artistIdCache = artistId;
                 SpotifyTopTrackTask spotifyTopTrackTask = new SpotifyTopTrackTask();

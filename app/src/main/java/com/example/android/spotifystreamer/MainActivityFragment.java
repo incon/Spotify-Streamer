@@ -3,6 +3,7 @@ package com.example.android.spotifystreamer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -41,6 +42,13 @@ public class MainActivityFragment extends Fragment {
     public MainActivityFragment() {
     }
 
+    public interface Callback {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        public void onItemSelected(String artistId, String artistName);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -64,10 +72,12 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ArtistData artistId = mSearchArtist.getItem(position);
-                Intent intent = new Intent(getActivity(), TopTracksActivity.class)
-                        .putExtra(Intent.EXTRA_TEXT, artistId.getId())
-                        .putExtra("ARTIST_NAME", artistId.getName());
-                startActivity(intent);
+//                Intent intent = new Intent(getActivity(), TopTracksActivity.class)
+//                        .putExtra(Intent.EXTRA_TEXT, artistId.getId())
+//                        .putExtra("ARTIST_NAME", artistId.getName());
+//                startActivity(intent);
+                ((Callback) getActivity()).
+                        onItemSelected(artistId.getId(), artistId.getName());
             }
         });
 
