@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import kaaes.spotify.webapi.android.models.Tracks;
 public class TopTracksActivityFragment extends Fragment {
 
     TopTrackAdapter mTopTrack;
-    static List<TrackData> topTrackCache = new ArrayList<>();
+    static ArrayList<TrackData> topTrackCache = new ArrayList<>();
     static String artistIdCache = null;
     static final String ARTIST_ID = "ARTIST_ID";
     static final String ARTIST_NAME = "ARTIST_NAME";
@@ -54,6 +55,17 @@ public class TopTracksActivityFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_top_tracks);
         listView.setAdapter(mTopTrack);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), MediaPlayerActivity.class)
+                        .putExtra("SELECTED_POSITION", position)
+                        .putParcelableArrayListExtra("TOP_TRACK_CACHE", topTrackCache);
+                //.putExtra(Intent.EXTRA_TEXT, artistId.getId())
+                //.putExtra("ARTIST_NAME", artistId.getName());
+                startActivity(intent);
+            }
+        });
 
         Bundle arguments = getArguments();
         if (arguments != null) {
@@ -104,15 +116,23 @@ public class TopTracksActivityFragment extends Fragment {
         protected void onPostExecute(List<Track> tracks) {
             topTrackCache.clear();
             for (Track track : tracks) {
-                String imageUrl = null;
+                String listImageUrl = null;
+                String fullImageUrl = null;
+                int largestWidth = 0;
                 for (Image image : track.album.images) {
                     if (image.width >= 200) {
-                        imageUrl = image.url;
+                        listImageUrl = image.url;
+                    }
+                    if (image.width > largestWidth) {
+                        largestWidth = image.width;
+                        fullImageUrl = image.url;
                     }
                 }
+
+                String previewUrl = track.preview_url;
                 String songName = track.name;
                 String albumName = track.album.name;
-                TrackData topTrack = new TrackData(imageUrl, songName, albumName);
+                TrackData topTrack = new TrackData(songName, albumName,listImageUrl, fullImageUrl, previewUrl);
                 topTrackCache.add(topTrack);
             }
             update(topTrackCache);

@@ -22,6 +22,11 @@
             android:name=".TopTracksActivity"
             android:label="@string/title_activity_top_tracks" >
         </activity>
+        <activity
+            android:name=".MediaPlayerActivity"
+            android:label="@string/title_activity_media_player" >
+        </activity>
+        <service android:enabled="true" android:name="com.example.android.spotifystreamer.MediaPlayerService" />
     </application>
 
 </manifest>

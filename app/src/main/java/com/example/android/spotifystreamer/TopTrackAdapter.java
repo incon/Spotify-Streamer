@@ -34,8 +34,8 @@ public class TopTrackAdapter extends ArrayAdapter<TrackData> {
         TextView name = (TextView) convertView.findViewById(R.id.list_item_song_name);
         TextView album = (TextView) convertView.findViewById(R.id.list_item_album_name);
 
-        if (track.getImageUrl() != null) {
-            Picasso.with(context).load(track.getImageUrl()).into(album_image);
+        if (track.getListImageUrl() != null) {
+            Picasso.with(context).load(track.getListImageUrl()).into(album_image);
         }
         // Populate the data into the template view using the data object
         name.setText(track.getSongName());
