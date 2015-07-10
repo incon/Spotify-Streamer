@@ -2,8 +2,6 @@ package com.example.android.spotifystreamer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
@@ -46,7 +44,8 @@ public class MainActivityFragment extends Fragment {
         /**
          * DetailFragmentCallback for when an item has been selected.
          */
-        public void onItemSelected(String artistId, String artistName);
+        void onItemSelected(String artistId, String artistName);
+        void clearTopTracks();
     }
 
     @Override
@@ -72,10 +71,6 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 ArtistData artistId = mSearchArtist.getItem(position);
-//                Intent intent = new Intent(getActivity(), TopTracksActivity.class)
-//                        .putExtra(Intent.EXTRA_TEXT, artistId.getId())
-//                        .putExtra("ARTIST_NAME", artistId.getName());
-//                startActivity(intent);
                 ((Callback) getActivity()).
                         onItemSelected(artistId.getId(), artistId.getName());
             }
@@ -91,6 +86,8 @@ public class MainActivityFragment extends Fragment {
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    ((Callback) getActivity()).
+                            clearTopTracks();
                     String search = v.getText().toString();
                     SpotifySearchTask spotifySearchTask = new SpotifySearchTask();
                     spotifySearchTask.execute(search);

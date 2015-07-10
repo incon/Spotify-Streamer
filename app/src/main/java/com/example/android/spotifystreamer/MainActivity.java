@@ -1,14 +1,17 @@
 package com.example.android.spotifystreamer;
 
 import android.content.Intent;
-import android.net.Uri;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
 
-public class MainActivity extends ActionBarActivity implements MainActivityFragment.Callback {
+
+public class MainActivity extends ActionBarActivity implements
+        MainActivityFragment.Callback {
 
     private static final String TOPTRACKSFRAGMENT_TAG = "TTFTAG";
 
@@ -29,7 +32,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
             // fragment transaction.
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.top_tracks_container, new TopTracksActivityFragment(), TOPTRACKSFRAGMENT_TAG)
+                        .replace(R.id.top_tracks_container, new TopTracksFragment(), TOPTRACKSFRAGMENT_TAG)
                         .commit();
             }
         } else {
@@ -62,25 +65,34 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
 
     @Override
     public void onItemSelected(String artistId, String artistName) {
+        Bundle args = new Bundle();
+        args.putString(TopTracksFragment.ARTIST_ID, artistId);
+        args.putString(TopTracksFragment.ARTIST_NAME, artistName);
+
+        TopTracksFragment fragment = new TopTracksFragment();
+        fragment.setArguments(args);
+
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
-            Bundle args = new Bundle();
-            args.putString(TopTracksActivityFragment.ARTIST_ID, artistId);
-            args.putString(TopTracksActivityFragment.ARTIST_NAME, artistName);
-
-            TopTracksActivityFragment fragment = new TopTracksActivityFragment();
-            fragment.setArguments(args);
-
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.top_tracks_container, fragment, TOPTRACKSFRAGMENT_TAG)
                     .commit();
         } else {
             Intent intent = new Intent(this, TopTracksActivity.class)
-            .putExtra(TopTracksActivityFragment.ARTIST_ID, artistId)
-            .putExtra(TopTracksActivityFragment.ARTIST_NAME, artistName);
+            .putExtra(TopTracksFragment.ARTIST_ID, artistId)
+            .putExtra(TopTracksFragment.ARTIST_NAME, artistName);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    public void clearTopTracks() {
+        if (mTwoPane) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.top_tracks_container, new Fragment(), TOPTRACKSFRAGMENT_TAG)
+                    .commit();
         }
     }
 }

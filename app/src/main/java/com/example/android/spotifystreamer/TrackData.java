@@ -11,9 +11,11 @@ public class TrackData implements Parcelable {
     private String songName;
     private String albumName;
     private String previewUrl;
+    private String artistName;
 
-    public TrackData(String songName, String albumName,String listImageUrl,
+    public TrackData(String artistName, String songName, String albumName,String listImageUrl,
                      String fullImageUrl, String previewUrl) {
+        this.artistName = artistName;
         this.songName = songName;
         this.albumName = albumName;
         this.listImageUrl = listImageUrl;
@@ -23,6 +25,10 @@ public class TrackData implements Parcelable {
 
     public String getAlbumName() {
         return albumName;
+    }
+
+    public String getArtistName() {
+        return artistName;
     }
 
     public String getFullImageUrl() {
@@ -47,6 +53,7 @@ public class TrackData implements Parcelable {
         songName = in.readString();
         albumName = in.readString();
         previewUrl = in.readString();
+        albumName = in.readString();
     }
 
     @Override
@@ -61,6 +68,7 @@ public class TrackData implements Parcelable {
         dest.writeString(songName);
         dest.writeString(albumName);
         dest.writeString(previewUrl);
+        dest.writeString(albumName);
     }
 
     @SuppressWarnings("unused")

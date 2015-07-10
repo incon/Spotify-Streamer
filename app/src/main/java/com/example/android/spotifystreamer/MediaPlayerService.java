@@ -9,11 +9,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import com.example.android.spotifystreamer.R;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by incon on 5/07/15.
@@ -41,6 +46,8 @@ public class MediaPlayerService extends Service {
     // UI
     private SeekBar seekBar;
     private ImageButton playPausedBtn;
+    private TextView currentTime;
+    private TextView fullTime;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -56,7 +63,13 @@ public class MediaPlayerService extends Service {
     private Runnable UpdateProgress = new Runnable() {
         public void run() {
             // Set progress and set to poll again
-            seekBar.setProgress(mediaPlayer.getCurrentPosition());
+            int currentPosition = mediaPlayer.getCurrentPosition();
+            seekBar.setProgress(currentPosition);
+            currentTime.setText(String.format("%02d:%02d",
+                            TimeUnit.MILLISECONDS.toMinutes((long) currentPosition),
+                            TimeUnit.MILLISECONDS.toSeconds((long) currentPosition) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) currentPosition)))
+            );
             handler.postDelayed(this, 100);
         }
     };
@@ -65,12 +78,33 @@ public class MediaPlayerService extends Service {
         // Get Ui items
         seekBar = (SeekBar) rootView.findViewById(R.id.seekBar);
         playPausedBtn = (ImageButton) rootView.findViewById(R.id.playPause);
+        currentTime = (TextView) rootView.findViewById(R.id.mpCurrentTime);
+        fullTime = (TextView) rootView.findViewById(R.id.mpFullTime);
 
         if (trackNo == 0) {
             rootView.findViewById(R.id.playPrev).setVisibility(View.GONE);
+        } else {
+            rootView.findViewById(R.id.playPrev).setVisibility(View.VISIBLE);
         }
         if (trackNo == trackNoOf) {
             rootView.findViewById(R.id.playNext).setVisibility(View.GONE);
+        } else {
+            rootView.findViewById(R.id.playNext).setVisibility(View.VISIBLE);
+        }
+
+        if (loaded) {
+            int fullLength = mediaPlayer.getDuration();
+            fullTime.setText(String.format("%02d:%02d",
+                            TimeUnit.MILLISECONDS.toMinutes((long) fullLength),
+                            TimeUnit.MILLISECONDS.toSeconds((long) fullLength) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) fullLength)))
+            );
+            int currentPosition = mediaPlayer.getCurrentPosition();
+            currentTime.setText(String.format("%02d:%02d",
+                            TimeUnit.MILLISECONDS.toMinutes((long) currentPosition),
+                            TimeUnit.MILLISECONDS.toSeconds((long) currentPosition) -
+                                    TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) currentPosition)))
+            );
         }
     }
 
@@ -143,6 +177,14 @@ public class MediaPlayerService extends Service {
                 // Start audio
                 mediaPlayer.start();
                 paused = false;
+
+                int fullLength = mediaPlayer.getDuration();
+
+                fullTime.setText(String.format("%02d:%02d",
+                                TimeUnit.MILLISECONDS.toMinutes((long) fullLength),
+                                TimeUnit.MILLISECONDS.toSeconds((long) fullLength) -
+                                        TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) fullLength)))
+                );
 
                 // Enable and change to pause
                 playPausedBtn.setEnabled(true);

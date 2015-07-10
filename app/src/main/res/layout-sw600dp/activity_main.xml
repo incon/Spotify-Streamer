@@ -14,7 +14,7 @@
     -->
 
     <fragment
-        android:id="@+id/fragment_forecast"
+        android:id="@+id/fragment_main"
         android:name="com.example.android.spotifystreamer.MainActivityFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"

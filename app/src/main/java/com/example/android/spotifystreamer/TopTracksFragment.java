@@ -4,7 +4,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,15 +27,17 @@ import kaaes.spotify.webapi.android.models.Tracks;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class TopTracksActivityFragment extends Fragment {
+public class TopTracksFragment extends Fragment {
 
     TopTrackAdapter mTopTrack;
     static ArrayList<TrackData> topTrackCache = new ArrayList<>();
     static String artistIdCache = null;
     static final String ARTIST_ID = "ARTIST_ID";
     static final String ARTIST_NAME = "ARTIST_NAME";
+    String artistId = null;
+    String artistName = null;
 
-    public TopTracksActivityFragment() {
+    public TopTracksFragment() {
     }
 
     @Override
@@ -50,20 +53,12 @@ public class TopTracksActivityFragment extends Fragment {
                         R.layout.list_item_top_tracks, // The name of the layout ID.
                         topTrack);
 
-        String artistId = null;
-        String artistName = null;
-
         ListView listView = (ListView) rootView.findViewById(R.id.listview_top_tracks);
         listView.setAdapter(mTopTrack);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), MediaPlayerActivity.class)
-                        .putExtra("SELECTED_POSITION", position)
-                        .putParcelableArrayListExtra("TOP_TRACK_CACHE", topTrackCache);
-                //.putExtra(Intent.EXTRA_TEXT, artistId.getId())
-                //.putExtra("ARTIST_NAME", artistId.getName());
-                startActivity(intent);
+                startMediaPlayer(topTrackCache, position);
             }
         });
 
@@ -108,8 +103,7 @@ public class TopTracksActivityFragment extends Fragment {
             SpotifyApi api = new SpotifyApi();
             SpotifyService spotify = api.getService();
             Tracks results = spotify.getArtistTopTrack(artistId, options);
-            List<Track> tracks = results.tracks;
-            return tracks;
+            return results.tracks;
         }
 
         @Override
@@ -132,7 +126,7 @@ public class TopTracksActivityFragment extends Fragment {
                 String previewUrl = track.preview_url;
                 String songName = track.name;
                 String albumName = track.album.name;
-                TrackData topTrack = new TrackData(songName, albumName,listImageUrl, fullImageUrl, previewUrl);
+                TrackData topTrack = new TrackData(artistName, songName, albumName,listImageUrl, fullImageUrl, previewUrl);
                 topTrackCache.add(topTrack);
             }
             update(topTrackCache);
@@ -144,6 +138,30 @@ public class TopTracksActivityFragment extends Fragment {
         mTopTrack.clear();
         for (TrackData track : tracks) {
             mTopTrack.add(track);
+        }
+    }
+
+    public void startMediaPlayer(ArrayList<TrackData> topTrackCache, int position) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        MediaPlayerFragment newFragment = new MediaPlayerFragment();
+
+        Bundle args = new Bundle();
+        args.putParcelableArrayList(MediaPlayerFragment.TOP_TRACK_CACHE, topTrackCache);
+        args.putInt(MediaPlayerFragment.DECK_POSITION, position);
+        newFragment.setArguments(args);
+
+        if (getActivity() instanceof MainActivity) {
+            // The device is using a large layout, so show the fragment as a dialog
+            newFragment.show(fragmentManager, "dialog");
+        } else {
+            // The device is smaller, so show the fragment fullscreen
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            // For a little polish, specify a transition animation
+            transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            // To make it fullscreen, use the 'content' root view as the container
+            // for the fragment, which is always the root view for the activity
+            transaction.replace(android.R.id.content, newFragment)
+                    .addToBackStack(null).commit();
         }
     }
 }
