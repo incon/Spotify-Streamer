@@ -3,7 +3,7 @@ package com.example.android.spotifystreamer;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-// Used http://www.parcelabler.com/ :)
+// Used http://www.parcelabler.com/ to start with.
 
 public class TrackData implements Parcelable {
     private String listImageUrl;
